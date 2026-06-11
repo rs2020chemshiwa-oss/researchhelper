@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { ArrowRight, Award, BookOpen, CheckCircle2, ClipboardList, Clock3, FileText, GraduationCap, Headphones, Mail, MessageCircle, Microscope, PhoneCall, ShieldCheck, Sigma, Sparkles, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -99,18 +99,43 @@ const stats = [
   { value: "50+", label: "Tools Used" },
 ];
 
+const highlights = [
+  { icon: ShieldCheck, text: "Plagiarism Free" },
+  { icon: Clock3, text: "On-Time Delivery" },
+  { icon: Headphones, text: "24/7 Support" },
+  { icon: Award, text: "Professional Quality" },
+];
+
 export default function ResearchHelperWebsite() {
   const [openFaq, setOpenFaq] = useState(0);
+  const [inquiryError, setInquiryError] = useState("");
+  const [inquiry, setInquiry] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    topic: "",
+    query: "",
+  });
 
-  const highlights = useMemo(
-    () => [
-      { icon: ShieldCheck, text: "Plagiarism Free" },
-      { icon: Clock3, text: "On-Time Delivery" },
-      { icon: Headphones, text: "24/7 Support" },
-      { icon: Award, text: "Professional Quality" },
-    ],
-    []
-  );
+  const updateInquiry = (field) => (event) => {
+    setInquiry((prev) => ({ ...prev, [field]: event.target.value }));
+  };
+
+  const handleInquirySubmit = (event) => {
+    event.preventDefault();
+
+    if (!inquiry.email || !inquiry.query) {
+      setInquiryError("Email and query are required.");
+      return;
+    }
+
+    setInquiryError("");
+    const subject = encodeURIComponent(`Research Inquiry: ${inquiry.topic || "General"}`);
+    const body = encodeURIComponent(
+      `Name: ${inquiry.name}\nEmail: ${inquiry.email}\nPhone: ${inquiry.phone}\n\nQuery:\n${inquiry.query}`
+    );
+    window.location.href = `mailto:researchhelper2025@gmail.com?subject=${subject}&body=${body}`;
+  };
 
   return (
     <div className="min-h-screen bg-white text-slate-900">
@@ -123,11 +148,15 @@ export default function ResearchHelperWebsite() {
             <p className="text-xs text-slate-500">Academic writing and scientific consulting</p>
           </div>
           <div className="hidden items-center gap-3 md:flex">
-            <Button variant="outline" className="rounded-full">
-              <PhoneCall className="mr-2 h-4 w-4" /> 8840752490
+            <Button asChild variant="outline" className="rounded-full">
+              <a href="tel:+918840752490">
+                <PhoneCall className="mr-2 h-4 w-4" /> 8840752490
+              </a>
             </Button>
-            <Button className="rounded-full bg-slate-900 text-white hover:bg-slate-800">
-              Get Consultation <ArrowRight className="ml-2 h-4 w-4" />
+            <Button asChild className="rounded-full bg-slate-900 text-white hover:bg-slate-800">
+              <a href="#inquiry">
+                Get Consultation <ArrowRight className="ml-2 h-4 w-4" />
+              </a>
             </Button>
           </div>
         </div>
@@ -150,11 +179,15 @@ export default function ResearchHelperWebsite() {
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
-                <Button className="rounded-full bg-cyan-700 px-6 py-6 text-base text-white hover:bg-cyan-800">
-                  Submit Your Query <ArrowRight className="ml-2 h-4 w-4" />
+                <Button asChild className="rounded-full bg-cyan-700 px-6 py-6 text-base text-white hover:bg-cyan-800">
+                  <a href="#inquiry">
+                    Submit Your Query <ArrowRight className="ml-2 h-4 w-4" />
+                  </a>
                 </Button>
-                <Button variant="outline" className="rounded-full px-6 py-6 text-base">
-                  WhatsApp / Call 24×7
+                <Button asChild variant="outline" className="rounded-full px-6 py-6 text-base">
+                  <a href="https://wa.me/918840752490" target="_blank" rel="noreferrer">
+                    WhatsApp / Call 24×7
+                  </a>
                 </Button>
               </div>
 
@@ -170,7 +203,7 @@ export default function ResearchHelperWebsite() {
               </div>
             </div>
 
-            <Card className="rounded-3xl border-slate-200 shadow-xl">
+            <Card id="inquiry" className="rounded-3xl border-slate-200 shadow-xl">
               <CardContent className="p-6 sm:p-8">
                 <div className="flex items-center gap-3">
                   <div className="rounded-2xl bg-cyan-100 p-3 text-cyan-700">
@@ -182,16 +215,17 @@ export default function ResearchHelperWebsite() {
                   </div>
                 </div>
 
-                <div className="mt-6 grid gap-3">
-                  <Input placeholder="Full Name" />
-                  <Input placeholder="Email Address" />
-                  <Input placeholder="Phone Number / WhatsApp" />
-                  <Input placeholder="Subject / Topic" />
-                  <Textarea placeholder="Write your query here..." className="min-h-32" />
-                  <Button className="rounded-2xl bg-slate-900 py-6 text-white hover:bg-slate-800">
+                <form onSubmit={handleInquirySubmit} className="mt-6 grid gap-3">
+                  <Input aria-label="Full Name" value={inquiry.name} onChange={updateInquiry("name")} placeholder="Full Name" />
+                  <Input aria-label="Email Address" value={inquiry.email} onChange={updateInquiry("email")} placeholder="Email Address" required />
+                  <Input aria-label="Phone Number / WhatsApp" value={inquiry.phone} onChange={updateInquiry("phone")} placeholder="Phone Number / WhatsApp" />
+                  <Input aria-label="Subject / Topic" value={inquiry.topic} onChange={updateInquiry("topic")} placeholder="Subject / Topic" />
+                  <Textarea aria-label="Query" value={inquiry.query} onChange={updateInquiry("query")} placeholder="Write your query here..." className="min-h-32" required />
+                  {inquiryError && <p className="text-sm text-red-600">{inquiryError}</p>}
+                  <Button type="submit" className="rounded-2xl bg-slate-900 py-6 text-white hover:bg-slate-800">
                     Send Inquiry
                   </Button>
-                </div>
+                </form>
               </CardContent>
             </Card>
           </div>
@@ -330,11 +364,15 @@ export default function ResearchHelperWebsite() {
                     <p className="font-semibold">24×7</p>
                   </div>
                   <div className="flex gap-3 pt-2">
-                    <Button className="rounded-full bg-emerald-600 text-white hover:bg-emerald-700">
-                      <MessageCircle className="mr-2 h-4 w-4" /> WhatsApp
+                    <Button asChild className="rounded-full bg-emerald-600 text-white hover:bg-emerald-700">
+                      <a href="https://wa.me/918840752490" target="_blank" rel="noreferrer">
+                        <MessageCircle className="mr-2 h-4 w-4" /> WhatsApp
+                      </a>
                     </Button>
-                    <Button variant="outline" className="rounded-full">
-                      <PhoneCall className="mr-2 h-4 w-4" /> Call Now
+                    <Button asChild variant="outline" className="rounded-full">
+                      <a href="tel:+918840752490">
+                        <PhoneCall className="mr-2 h-4 w-4" /> Call Now
+                      </a>
                     </Button>
                   </div>
                 </div>
@@ -352,14 +390,20 @@ export default function ResearchHelperWebsite() {
                     <div key={item.q} className="overflow-hidden rounded-2xl border">
                       <button
                         onClick={() => setOpenFaq(index)}
+                        aria-expanded={openFaq === index}
+                        aria-controls={`faq-panel-${index}`}
                         className="flex w-full items-center justify-between p-4 text-left font-medium"
                       >
                         <span>{item.q}</span>
                         <span className="text-slate-400">{openFaq === index ? "−" : "+"}</span>
                       </button>
-                      {openFaq === index && (
-                        <div className="border-t bg-slate-50 p-4 text-sm text-slate-600">{item.a}</div>
-                      )}
+                      <div
+                        id={`faq-panel-${index}`}
+                        hidden={openFaq !== index}
+                        className="border-t bg-slate-50 p-4 text-sm text-slate-600"
+                      >
+                        {item.a}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -380,11 +424,15 @@ export default function ResearchHelperWebsite() {
                 </p>
               </div>
               <div className="flex flex-wrap gap-3">
-                <Button className="rounded-full bg-white px-6 py-6 text-slate-950 hover:bg-slate-100">
-                  <Mail className="mr-2 h-4 w-4" /> researchhelper2025@gmail.com
+                <Button asChild className="rounded-full bg-white px-6 py-6 text-slate-950 hover:bg-slate-100">
+                  <a href="mailto:researchhelper2025@gmail.com">
+                    <Mail className="mr-2 h-4 w-4" /> researchhelper2025@gmail.com
+                  </a>
                 </Button>
-                <Button className="rounded-full bg-cyan-600 px-6 py-6 text-white hover:bg-cyan-700">
-                  <PhoneCall className="mr-2 h-4 w-4" /> 8840752490
+                <Button asChild className="rounded-full bg-cyan-600 px-6 py-6 text-white hover:bg-cyan-700">
+                  <a href="tel:+918840752490">
+                    <PhoneCall className="mr-2 h-4 w-4" /> 8840752490
+                  </a>
                 </Button>
               </div>
             </CardContent>
